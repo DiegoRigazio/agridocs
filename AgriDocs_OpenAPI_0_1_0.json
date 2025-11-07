@@ -1,0 +1,170 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "AgriDocs Cloud API",
+    "version": "1.0.0",
+    "description": "API mínima para ingesta y consulta de documentos con auditoría.\nSeguridad opcional por X-API-Key (solo si el servidor define API_KEY)."
+  },
+  "servers": [
+    { "url": "{{BASE_URL}}", "description": "Render public URL o local" }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health simple",
+        "tags": ["health"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "application/json": { "schema": { "type": "object", "properties": { "status": { "type": "string", "const": "ok" } }, "required": ["status"] } } }
+          }
+        },
+        "security": []
+      }
+    },
+    "/health/full": {
+      "get": {
+        "summary": "Health extendido",
+        "tags": ["health"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": { "type": "string" },
+                  "docs_count": { "type": "integer" },
+                  "last_audit": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": { "type": "string" },
+                        "doc_id": { "type": "string", "nullable": true },
+                        "status": { "type": "string", "enum": ["OK", "DUP"] },
+                        "hash_sha256": { "type": "string", "nullable": true },
+                        "detail": { "type": "string", "nullable": true },
+                        "raw_payload": { "type": "object", "nullable": true },
+                        "created_at": { "type": "string", "format": "date-time" }
+                      },
+                      "required": ["id", "status", "created_at"]
+                    }
+                  }
+                },
+                "required": ["status", "docs_count", "last_audit"]
+              }
+            } } }
+          }
+        },
+        "security": []
+      }
+    },
+    "/ingest": {
+      "post": {
+        "summary": "Ingesta de documentos",
+        "tags": ["ingest"],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "contrato_nro": { "type": "string" },
+                "tipo": { "type": "string" },
+                "productor_cuit": { "type": "string", "nullable": true },
+                "hash_sha256": { "type": "string", "nullable": true },
+                "metadata": { "type": "object", "nullable": true },
+                "referencias": { "type": "object", "nullable": true },
+                "content_text": { "type": "string", "nullable": true }
+              },
+              "required": ["contrato_nro", "tipo"]
+            }
+          } }
+        },
+        "responses": {
+          "200": {
+            "description": "Insert OK",
+            "content": { "application/json": { "schema": { "type": "object", "properties": {
+              "ok": { "type": "boolean" },
+              "doc_id": { "type": "string" },
+              "status": { "type": "string" }
+            }, "required": ["ok", "doc_id"] } } }
+          },
+          "409": {
+            "description": "Duplicado",
+            "content": { "application/json": { "schema": { "type": "object", "properties": {
+              "detail": { "type": "string", "example": "Documento duplicado (hash)" }
+            }, "required": ["detail"] } } }
+          }
+        }
+      }
+    },
+    "/records": {
+      "get": {
+        "summary": "Consulta de documentos",
+        "tags": ["records"],
+        "parameters": [
+          { "name": "contrato_nro", "in": "query", "schema": { "type": "string" } },
+          { "name": "tipo", "in": "query", "schema": { "type": "string" } },
+          { "name": "productor_cuit", "in": "query", "schema": { "type": "string" } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 50, "minimum": 1, "maximum": 500 } },
+          { "name": "offset", "in": "query", "schema": { "type": "integer", "default": 0, "minimum": 0 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Listado",
+            "content": { "application/json": { "schema": {
+              "type": "object",
+              "properties": {
+                "items": { "type": "array", "items": { "type": "object" } },
+                "limit": { "type": "integer" },
+                "offset": { "type": "integer" },
+                "count": { "type": "integer" }
+              },
+              "required": ["items", "limit", "offset", "count"]
+            } } }
+          }
+        }
+      }
+    },
+    "/records/export.csv": {
+      "get": {
+        "summary": "Export CSV con ';'",
+        "tags": ["records"],
+        "parameters": [
+          { "name": "contrato_nro", "in": "query", "schema": { "type": "string" } },
+          { "name": "tipo", "in": "query", "schema": { "type": "string" } },
+          { "name": "productor_cuit", "in": "query", "schema": { "type": "string" } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 5000 } },
+          { "name": "offset", "in": "query", "schema": { "type": "integer", "default": 0 } }
+        ],
+        "responses": {
+          "200": { "description": "CSV", "content": { "text/csv": {} } }
+        }
+      }
+    },
+    "/audit/ingest": {
+      "get": {
+        "summary": "Auditoría de ingestas",
+        "tags": ["audit"],
+        "parameters": [
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 100, "minimum": 1 } }
+        ],
+        "responses": {
+          "200": { "description": "OK", "content": { "application/json": { "schema": { "type": "array", "items": { "type": "object" } } } } }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "Solo requerido si el servidor define API_KEY."
+      }
+    }
+  }
+}

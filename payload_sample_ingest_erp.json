@@ -1,0 +1,19 @@
+{
+  "tipo": "LIQUIDACION",
+  "origen": {
+    "sistema": "ERP",
+    "repositorio_uri": "file://srv/erp/docs/LIQ/2025/LIQ-000123.pdf",
+    "hash_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  },
+  "referencias": {
+    "contrato_nro": "CON-2025-0345",
+    "productor_cuit": "20-12345678-9",
+    "ctg": "123456789012"
+  },
+  "datos": {
+    "producto": "SOJA",
+    "moneda": "ARS",
+    "toneladas": 28.5
+  },
+  "content_text": "Documento de prueba ERP."
+}

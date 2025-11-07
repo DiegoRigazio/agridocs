@@ -1,0 +1,48 @@
+{
+  "info": {
+    "name": "AgriDocs_SprintB",
+    "_postman_id": "e8b6f3b1-0000-4000-9000-000000000001",
+    "description": "Coleccion de pruebas Sprint B",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:8002/health"
+      }
+    },
+    {
+      "name": "Ingest sample",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "http://localhost:8002/ingest",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tipo\": \"LIQUIDACION\",\n  \"origen\": {\n    \"sistema\": \"ERP\",\n    \"repositorio_uri\": \"file://srv/erp/docs/LIQ/2025/LIQ-000123.pdf\",\n    \"hash_sha256\": \"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb\"\n  },\n  \"referencias\": {\n    \"contrato_nro\": \"CON-2025-0345\"\n  },\n  \"datos\": {\n    \"producto\": \"SOJA\",\n    \"moneda\": \"ARS\"\n  }\n}"
+        }
+      }
+    },
+    {
+      "name": "List by contrato",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:8002/records?contrato_nro=CON-2025-0345"
+      }
+    },
+    {
+      "name": "Audit last 50",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:8002/audit/ingest"
+      }
+    }
+  ]
+}
