@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.env
+.venv/
+venv/
+
+# OS / Editor
+.DS_Store
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Docker / Compose
+*.log
+export.csv
+.env
+
+# Node (si en el futuro agregás front)
+node_modules/
+
+# Mac
+.Icon?
